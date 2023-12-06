@@ -3,7 +3,6 @@ package dev.bolohonov.tms.server.services.impl;
 import dev.bolohonov.tms.server.dto.CommentDto;
 import dev.bolohonov.tms.server.mappers.CommentMapper;
 import dev.bolohonov.tms.server.model.Comment;
-import dev.bolohonov.tms.server.model.Task;
 import dev.bolohonov.tms.server.repo.comment.CommentRepository;
 import dev.bolohonov.tms.server.services.CommentService;
 import dev.bolohonov.tms.server.services.TaskService;
@@ -23,10 +22,6 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
 
-    private final UserService userService;
-
-    private final TaskService taskService;
-
     @Override
     public Collection<CommentDto> getCommentsByTask(Long taskId, Integer from, Integer size) {
         Page<Comment> comments = commentRepository.getCommentsByTaskId(taskId, getPageRequest(from, size));
@@ -43,6 +38,6 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private Pageable getPageRequest(Integer from, Integer size) {
-        return PageRequest.of(from % size, size);
+        return PageRequest.of(from, size);
     }
 }

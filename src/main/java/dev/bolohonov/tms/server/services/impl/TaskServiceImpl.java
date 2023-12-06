@@ -65,7 +65,7 @@ public class TaskServiceImpl implements TaskService {
             oldTask.setTitle(newTask.getTitle());
             oldTask.setExecutors(newTask.getExecutors()
                     .stream()
-                    .map(u -> userService.getUserByName(u.getName()).get())
+                    .map(u -> userService.getDomainUserByName(u.getName()).get())
                     .collect(Collectors.toSet()));
             oldTask.setState(newTask.getState());
             oldTask.setDescription(newTask.getDescription());
@@ -77,6 +77,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteTask(String username, Long taskId) {
+        if (!isInitiator(taskId, username)) {
+            throw new AuthorizationException("Попытка удаления задачи не инициатором с именем ", username);
+        }
         taskRepository.delete(getDomainTaskById(taskId));
     }
 
@@ -90,7 +93,7 @@ public class TaskServiceImpl implements TaskService {
     public Collection<TaskDto> getTasksByExecutor(Long userId, Integer from, Integer size) {
 
         Collection<Task> tasks = taskRepository
-                .getTasksIdsByExecutorId(userId, from, size)
+                .getTasksIdsByExecutorId(userId, from * size, size)
                 .stream()
                 .map(this::getDomainTaskById)
                 .collect(Collectors.toList());
@@ -131,7 +134,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private Pageable getPageRequest(Integer from, Integer size) {
-        return PageRequest.of(from % size, size);
+        return PageRequest.of(from, size);
     }
 
     private Collection<TaskDto> checkAndReturnCollection(Page<Task> tasks) {

@@ -2,6 +2,10 @@ package dev.bolohonov.tms.api.controllers;
 
 import dev.bolohonov.tms.server.dto.CommentDto;
 import dev.bolohonov.tms.server.services.CommentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +23,8 @@ import static org.springframework.http.HttpStatus.OK;
         allowCredentials = "true",
         methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.OPTIONS},
         maxAge = 3600)
+@Tag(name="Контроллер для работы с комментариями",
+        description="Контроллер для добавления комментариев и получения списка комментариев задачи")
 public class CommentController {
 
     private final CommentService commentService;
@@ -30,7 +36,12 @@ public class CommentController {
 
     @PostMapping("/add")
     @ResponseStatus(OK)
-    public ResponseEntity postComment(@PathVariable Long taskId,
+    @Operation(
+            summary = "Добавление комментария",
+            description = "Добавление комментария к задаче по идентификатору"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity postComment(@Parameter(description = "Идентификатор задачи") @PathVariable Long taskId,
                                       @RequestBody CommentDto commentDto,
                                       Principal principal) {
         return ResponseEntity.ok().body(commentService.addComment(principal.getName(), taskId, commentDto));
@@ -38,10 +49,17 @@ public class CommentController {
 
     @GetMapping()
     @ResponseStatus(OK)
-    public ResponseEntity findComments(@PathVariable Long taskId,
-                                       @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+    @Operation(
+            summary = "Поиск комментариев",
+            description = "Поиск всех комментариев к задаче по идентификатору"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity findComments(@Parameter(description = "Идентификатор задачи") @PathVariable Long taskId,
+                                       @Parameter(description = "Номер начальной страницы")
+                                       @PositiveOrZero @RequestParam (name = "from", defaultValue = "0")
                                        Integer from,
-                                       @Positive @RequestParam(name = "size", defaultValue = "50")
+                                       @Parameter(description = "Количество элементов на странице")
+                                           @Positive @RequestParam(name = "size", defaultValue = "50")
                                            Integer size) {
         return ResponseEntity.ok().body(commentService.getCommentsByTask(taskId, from, size));
     }

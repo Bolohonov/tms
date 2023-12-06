@@ -81,10 +81,10 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<User> getUserByName(String name) {
-        return of(userRepository.findByName(name).orElseThrow(
+    public Optional<UserDto> getUserByName(String name) {
+        return of(UserMapper.toUserDto(userRepository.findByName(name).orElseThrow(
                 () -> new UserNotFoundException("Ошибка запроса по имени", name)
-        ));
+        )));
     };
 
     @Transactional

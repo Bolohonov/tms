@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Component
 public class UserDetailsHelper {
 
-    private RoleService roleService;
+    private final RoleService roleService;
 
     @Autowired
     public UserDetailsHelper(RoleService roleService) {

@@ -9,6 +9,9 @@ import dev.bolohonov.tms.api.security.jwt.JwtUtils;
 import dev.bolohonov.tms.server.services.RoleService;
 import dev.bolohonov.tms.server.services.TokenService;
 import dev.bolohonov.tms.server.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -42,6 +45,9 @@ import java.util.stream.Collectors;
         methods = {RequestMethod.POST, RequestMethod.OPTIONS},
         maxAge = 3600)
 @Slf4j
+@Tag(name="Контроллер авторизации",
+        description="Контроллер для авторизации пользователей. Неавторизованный " +
+        "пользователь не имеет доступа ни к одному из эндпоинтов")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -69,6 +75,11 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
+    @Operation(
+            summary = "Авторизация пользователя",
+            description = "Пользователь передает заранее зарегистрированные имя и пароль и получает токен"
+    )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<?> signIn(@RequestBody LoginDto request, HttpServletRequest httpServletRequest) {
         Authentication authentication = null;
         try {
@@ -83,12 +94,12 @@ public class AuthController {
         String jwt = jwtUtils.generateToken(authentication);
 
         HttpSession session = httpServletRequest.getSession();
-        session.setAttribute("user", userService.getUserByName(request.getUsername()).get());
+        session.setAttribute("user", userService.getDomainUserByName(request.getUsername()).get());
 
         session.setAttribute("token", tokenService.saveToken(Token.builder()
                 .token_validity(true)
                 .token_value(jwt)
-                .user(userService.getUserByName(request.getUsername()).get())
+                .user(userService.getDomainUserByName(request.getUsername()).get())
                 .build()));
 
         UserDetailsImpl details = (UserDetailsImpl) authentication.getPrincipal();
@@ -100,12 +111,18 @@ public class AuthController {
         return ResponseEntity.ok(LoginSuccessDto.builder()
                 .username(details.getUsername())
                 .token(jwt)
-                .roles(authorities.stream().map(a -> a.getAuthority()).collect(Collectors.toList()))
+                .roles(authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .build()
         );
     }
 
     @PostMapping("/signout")
+    @Operation(
+            summary = "Выход из системы",
+            description = "Токен становится недействительным и потребуется повторная авторизация " +
+                    "с получением нового токена. Открытая сессия также закрывается."
+    )
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<?> signOut(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -114,7 +131,7 @@ public class AuthController {
             Token token = (Token) session.getAttribute("token");
 
             Token tokenFromDb = tokenService.findById(token.getId()).orElse(null);
-            tokenFromDb.setToken_validity(false);
+            if (tokenFromDb != null) tokenFromDb.setToken_validity(false);
             tokenService.saveToken(tokenFromDb);
 
             session.invalidate();

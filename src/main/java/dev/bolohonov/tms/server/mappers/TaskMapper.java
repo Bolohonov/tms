@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,9 @@ public class TaskMapper {
                 task.getTitle(),
                 task.getDescription(),
                 task.getInitiatorId(),
-                new HashSet<>(UserMapper.toUserDto(task.getExecutors())),
+                new HashSet<>(UserMapper.toUserDto(task.getExecutors() != null
+                        ? task.getExecutors()
+                        : Collections.emptySet())),
                 task.getState(),
                 task.getPriority()
         );

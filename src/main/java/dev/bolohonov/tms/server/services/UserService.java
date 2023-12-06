@@ -41,7 +41,7 @@ public interface UserService {
     /**
      * Получить пользователя по email
      */
-    Optional<User> getUserByName(String name);
+    Optional<UserDto> getUserByName(String name);
 
     /**
      * Удалить пользователя

@@ -18,7 +18,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     /**
      * Получить список задач по id исполнителя (pagination from & size)
      */
-    @Query(value = "SELECT task_id FROM executors_to_tasks et WHERE user_id == ?1 ORDER BY task_id LIMIT ?3 OFFSET ?2",
+    @Query(value = "SELECT task_id FROM executors_to_tasks WHERE user_id = ?1 ORDER BY task_id LIMIT ?3 OFFSET ?2",
             nativeQuery = true)
     Collection<Long> getTasksIdsByExecutorId(Long id, Integer from, Integer size);
 }

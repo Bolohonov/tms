@@ -5,6 +5,10 @@ import dev.bolohonov.tms.server.errors.mapper.MapperException;
 import dev.bolohonov.tms.server.errors.task.TaskNotFoundException;
 import dev.bolohonov.tms.server.errors.user.UserRoleUndefinedException;
 import dev.bolohonov.tms.server.services.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +28,8 @@ import static org.springframework.http.HttpStatus.OK;
         allowCredentials = "true",
         methods = {RequestMethod.POST, RequestMethod.GET, RequestMethod.OPTIONS},
         maxAge = 3600)
+@Tag(name="Контроллер для работы с задачами",
+        description="Контроллер для CRUD операций с задачами и получения списков задач по критериям")
 public class TaskController {
 
     private static final String EXECUTOR = "EXECUTOR";
@@ -38,22 +44,39 @@ public class TaskController {
 
     @GetMapping("/all")
     @ResponseStatus(OK)
-    public Collection<TaskDto> findTasks(@PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
-                                 Integer from,
-                             @Positive @RequestParam(name = "size", defaultValue = "50")
-                                 Integer size) {
+    @Operation(
+            summary = "Поиск задач",
+            description = "Поиск всех задач с пагинацией."
+    )
+    @SecurityRequirement(name = "JWT")
+    public Collection<TaskDto> findTasks(@Parameter(description = "Номер начальной страницы")
+                                             @PositiveOrZero @RequestParam (name = "from", defaultValue = "0")
+                                             Integer from,
+                                         @Parameter(description = "Количество элементов на странице")
+                                         @Positive @RequestParam(name = "size", defaultValue = "50")
+                                         Integer size) {
         return taskService.getTasks(from, size);
     }
 
     @GetMapping("/{taskId}")
     @ResponseStatus(OK)
-    public TaskDto findTaskById(@PathVariable Long taskId) {
+    @Operation(
+            summary = "Поиск задачи",
+            description = "Поиск задачи по идентификатору"
+    )
+    @SecurityRequirement(name = "JWT")
+    public TaskDto findTaskById(@Parameter(description = "Идентификатор задачи") @PathVariable Long taskId) {
         return taskService.getTaskById(taskId).orElseThrow(
                 () -> new MapperException("Ошибка при запросе задачи", taskId));
     }
 
     @PostMapping()
     @ResponseStatus(OK)
+    @Operation(
+            summary = "Добавление задачи",
+            description = "Добавление задачи"
+    )
+    @SecurityRequirement(name = "JWT")
     public TaskDto postTask(@RequestBody TaskDto taskDto, Principal principal) {
         return taskService.addTask(principal.getName(), taskDto).orElseThrow(
                 () -> new MapperException("Ошибка при сохранении задачи", taskDto.getTitle())
@@ -62,10 +85,17 @@ public class TaskController {
 
     @PatchMapping("/{taskId}")
     @ResponseStatus(OK)
-    public TaskDto patchTask(@PathVariable Long taskId,
-                                    @RequestBody TaskDto taskDto,
-                                    @RequestParam(required = false) Collection<Long> users,
-                                    Principal principal) {
+    @Operation(
+            summary = "Обновление задачи",
+            description = "В зависимости от того, кто является инициатором обновления могут быть обновлены либо " +
+                    "все поля задачи (обновляет инициатор), либо только статус (обновляет исполнитель)"
+    )
+    @SecurityRequirement(name = "JWT")
+    public TaskDto patchTask(@Parameter(description = "Идентификатор задачи") @PathVariable Long taskId,
+                             @RequestBody TaskDto taskDto,
+                             @Parameter(description = "Список идентификаторов пользователей для обновления " +
+                                     "списка исполнителей задачи")
+                                 @RequestParam(required = false) Collection<Long> users, Principal principal) {
         return taskService.updateTask(taskId, principal.getName(), taskDto, users).orElseThrow(
                         () -> new MapperException("Ошибка при обновлении задачи", taskId)
         );
@@ -73,18 +103,37 @@ public class TaskController {
 
     @DeleteMapping("/{taskId}")
     @ResponseStatus(OK)
-    public void removeTask(@PathVariable Long taskId, Principal principal) {
+    @Operation(
+            summary = "Удаление задачи по идентификатору",
+            description = "Попытка удаления задачи не инициатором приведет к exception"
+    )
+    @SecurityRequirement(name = "JWT")
+    public void removeTask(@Parameter(description = "Идентификатор задачи")
+                               @PathVariable Long taskId, Principal principal) {
         taskService.deleteTask(principal.getName(), taskId);
     }
 
     @GetMapping("/role/{userId}")
     @ResponseStatus(OK)
-    public Collection<TaskDto> findTasksByUser(@PathVariable Long userId,
-                                                  @NotBlank @RequestParam (name = "role") String role,
-                                                  @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
-                                                  Integer from,
-                                                  @Positive @RequestParam(name = "size", defaultValue = "50")
-                                                      Integer size) {
+    @Operation(
+            summary = "Поиск списка задач исполнителей или инициаторов",
+            description = "Поиск списка задач закрепленных за исполнителем, " +
+                    "либо созданных инициатором в зависимости от параметра role"
+    )
+    @SecurityRequirement(name = "JWT")
+    public Collection<TaskDto> findTasksByUser(@Parameter(description = "Идентификатор пользователя")
+                                                   @PathVariable Long userId,
+                                               @Parameter(description = "Параметр со значением с или INITIATOR, " +
+                                                       "в зависимости от указанного параметра осуществляется поиск " +
+                                                       "задач назначенных исполнителю EXECUTOR " +
+                                                       "или задач созданных пользователем INITIATOR")
+                                               @NotBlank @RequestParam (name = "role") String role,
+                                               @Parameter(description = "Номер начальной страницы")
+                                                   @PositiveOrZero @RequestParam (name = "from", defaultValue = "0")
+                                                   Integer from,
+                                               @Parameter(description = "Количество элементов на странице")
+                                                   @Positive @RequestParam(name = "size", defaultValue = "50")
+                                                   Integer size) {
         if (role.equals(EXECUTOR)) {
             return taskService.getTasksByExecutor(userId, from, size);
         }
@@ -96,7 +145,14 @@ public class TaskController {
 
     @PatchMapping("/role/{taskId}")
     @ResponseStatus(OK)
-    public ResponseEntity patchTaskByExecutor(@PathVariable Long taskId,
+    @Operation(
+            summary = "Обновление задачи исполнителем",
+            description = "Исполнителю доступно только обновление статуса задачи, который приходит " +
+                    "в составе объекта в теле запроса"
+    )
+    @SecurityRequirement(name = "JWT")
+    public ResponseEntity patchTaskByExecutor(@Parameter(description = "Идентификатор задачи")
+                                                  @PathVariable Long taskId,
                                               @RequestBody TaskDto taskDto,
                                               Principal principal) {
         return ResponseEntity.ok().body(taskService.updateTaskByExecutor(taskId, principal.getName(), taskDto));
