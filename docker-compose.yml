@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  TaskManagementSystem:
+    build: TaskManagementSystem
+    container_name: TaskManagementSystem_container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgresql
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/root
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+
+  postgresql:
+    image: postgres:13.7-alpine
+    restart: always
+    container_name: postgresql_container
+    ports:
+      - "6541:5432"
+    volumes:
+      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
