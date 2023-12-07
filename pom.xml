@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>dev.bolohonov</groupId>
-    <artifactId>TaskManagementSystem</artifactId>
+    <artifactId>tms</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>TaskManagementSystem</name>
-    <description>TaskManagementSystem</description>
+    <name>tms</name>
+
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -73,8 +73,18 @@
             <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
 

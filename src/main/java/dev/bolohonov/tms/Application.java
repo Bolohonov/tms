@@ -18,10 +18,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories(basePackages = {"dev.bolohonov.tms.server.repo"})
 @ComponentScan(basePackages = {"dev.bolohonov.tms.api", "dev.bolohonov.tms.server"})
 @Import(WebSecurityConfig.class)
-public class TaskManagementSystemApplication {
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(TaskManagementSystemApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
     @Bean

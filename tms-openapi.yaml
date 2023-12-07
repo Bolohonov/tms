@@ -1,32 +1,39 @@
 openapi: "3.0.3"
 info:
-  title: "TaskManagementSystem API"
-  description: "TaskManagementSystem API"
+  title: "tms API"
+  description: "tms API"
   version: "1.0.0"
 servers:
-  - url: "https://TaskManagementSystem"
+  - url: "https://tms"
 tags:
-  - name: "Контроллер авторизации"
-    description: "Контроллер для авторизации пользователей. Неавторизованный пользов\
-    атель не имеет доступа ни к одному из эндпоинтов"
-  - name: "Контроллер для работы с задачами"
-    description: "Контроллер для CRUD операций с задачами и получения списков задач\
-    \ по критериям"
   - name: "Контроллер для работы с комментариями"
     description: "Контроллер для добавления комментариев и получения списка коммента\
     риев задачи"
+  - name: "Контроллер для работы с задачами"
+    description: "Контроллер для CRUD операций с задачами и получения списков задач\
+    \ по критериям"
+  - name: "Контроллер авторизации"
+    description: "Контроллер для авторизации пользователей. Неавторизованный пользов\
+    атель не имеет доступа ни к одному из эндпоинтов"
 paths:
-  /api/auth/signin:
+  /api/tasks/{taskId}/comments/add:
     post:
-      summary: "Авторизация пользователя"
-      description: "Пользователь передает заранее зарегистрированные имя и пароль\
-        \ и получает токен"
+      summary: "Добавление комментария"
+      description: "Добавление комментария к задаче по идентификатору"
       operationId: ""
+      parameters:
+        - name: "taskId"
+          in: "path"
+          required: true
+          description: "Идентификатор задачи"
+          schema:
+            type: "integer"
+            format: "int64"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LoginDto"
+              $ref: "#/components/schemas/CommentDto"
         required: true
       responses:
         "200":
@@ -34,20 +41,43 @@ paths:
           content:
             '*/*':
               schema:
-                type: "object"
-  /api/auth/signout:
-    post:
-      summary: "Выход из системы"
-      description: "Токен становится недействительным и потребуется повторная авто\
-        ризация с получением нового токена. Открытая сессия также закрывается."
+                $ref: "#/components/schemas/ResponseEntity"
+  /api/tasks/{taskId}/comments:
+    get:
+      summary: "Поиск комментариев"
+      description: "Поиск всех комментариев к задаче по идентификатору"
       operationId: ""
+      parameters:
+        - name: "taskId"
+          in: "path"
+          required: true
+          description: "Идентификатор задачи"
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "from"
+          in: "query"
+          required: false
+          description: "Номер начальной страницы"
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "0"
+        - name: "size"
+          in: "query"
+          required: false
+          description: "Количество элементов на странице"
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "50"
       responses:
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                type: "object"
+                $ref: "#/components/schemas/ResponseEntity"
   /api/tasks/{taskId}:
     patch:
       summary: "Обновление задачи"
@@ -120,33 +150,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/TaskDto"
-  /api/tasks/role/{taskId}:
-    patch:
-      summary: "Обновление задачи исполнителем"
-      description: "Исполнителю доступно только обновление статуса задачи, который\
-        \ приходит в составе объекта в теле запроса"
-      operationId: ""
-      parameters:
-        - name: "taskId"
-          in: "path"
-          required: true
-          description: "Идентификатор задачи"
-          schema:
-            type: "integer"
-            format: "int64"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TaskDto"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ResponseEntity"
   /api/tasks:
     post:
       summary: "Добавление задачи"
@@ -196,7 +199,7 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/TaskDto"
-  /api/tasks/role/{userId}:
+  /api/tasks/search/{userId}:
     get:
       summary: "Поиск списка задач исполнителей или инициаторов"
       description: "Поиск списка задач закрепленных за исполнителем, либо созданны\
@@ -243,24 +246,17 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/TaskDto"
-  /api/tasks/{taskId}/comments/add:
+  /api/auth/signin:
     post:
-      summary: "Добавление комментария"
-      description: "Добавление комментария к задаче по идентификатору"
+      summary: "Авторизация пользователя"
+      description: "Пользователь передает заранее зарегистрированные имя и пароль\
+        \ и получает токен"
       operationId: ""
-      parameters:
-        - name: "taskId"
-          in: "path"
-          required: true
-          description: "Идентификатор задачи"
-          schema:
-            type: "integer"
-            format: "int64"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CommentDto"
+              $ref: "#/components/schemas/LoginDto"
         required: true
       responses:
         "200":
@@ -268,52 +264,41 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/ResponseEntity"
-  /api/tasks/{taskId}/comments:
-    get:
-      summary: "Поиск комментариев"
-      description: "Поиск всех комментариев к задаче по идентификатору"
+                type: "object"
+  /api/auth/signout:
+    post:
+      summary: "Выход из системы"
+      description: "Токен становится недействительным и потребуется повторная авто\
+        ризация с получением нового токена. Открытая сессия также закрывается."
       operationId: ""
-      parameters:
-        - name: "taskId"
-          in: "path"
-          required: true
-          description: "Идентификатор задачи"
-          schema:
-            type: "integer"
-            format: "int64"
-        - name: "from"
-          in: "query"
-          required: false
-          description: "Номер начальной страницы"
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "0"
-        - name: "size"
-          in: "query"
-          required: false
-          description: "Количество элементов на странице"
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "50"
       responses:
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/ResponseEntity"
+                type: "object"
 components:
   schemas:
-    LoginDto:
+    CommentDto:
       type: "object"
       properties:
-        username:
+        authorId:
+          type: "integer"
+          format: "int64"
+        taskId:
+          type: "integer"
+          format: "int64"
+        text:
           type: "string"
-        password:
-          type: "string"
+    HttpHeaders:
+      type: "object"
+      properties: { }
+    ResponseEntity:
+      type: "object"
+      properties:
+        headers:
+          $ref: "#/components/schemas/HttpHeaders"
     UserDto:
       type: "object"
       properties:
@@ -345,22 +330,10 @@ components:
             - "LOW"
             - "MEDIUM"
             - "HIGH"
-    HttpHeaders:
-      type: "object"
-      properties: { }
-    ResponseEntity:
+    LoginDto:
       type: "object"
       properties:
-        headers:
-          $ref: "#/components/schemas/HttpHeaders"
-    CommentDto:
-      type: "object"
-      properties:
-        authorId:
-          type: "integer"
-          format: "int64"
-        taskId:
-          type: "integer"
-          format: "int64"
-        text:
+        username:
+          type: "string"
+        password:
           type: "string"

@@ -51,34 +51,22 @@ public class TaskServiceImpl implements TaskService {
     public Optional<TaskDto> updateTask(Long taskId, String username, TaskDto newTask, Collection<Long> ids) {
 
         if (isInitiator(taskId, username)) {
-            throw new AuthorizationException(String.format("Ошибка при обновлении задачи с id %s", taskId), username);
+            return updateTaskByInitiator(taskId, newTask, ids);
         }
 
-        Task oldTask = getDomainTaskById(taskId);
-        if (ids != null && !ids.isEmpty()) {
-            Set<User> users = ids.stream()
-                    .map(i -> userService.getDomainUserById(i).get())
-                    .collect(Collectors.toSet());
-            oldTask.setExecutors(new HashSet<>(users));
+        if(isExecutor(taskId, username)) {
+            return updateTaskByExecutor(taskId, newTask);
         }
-        if (!oldTask.equals(newTask)) {
-            oldTask.setTitle(newTask.getTitle());
-            oldTask.setExecutors(newTask.getExecutors()
-                    .stream()
-                    .map(u -> userService.getDomainUserByName(u.getName()).get())
-                    .collect(Collectors.toSet()));
-            oldTask.setState(newTask.getState());
-            oldTask.setDescription(newTask.getDescription());
-            oldTask.setPriority(newTask.getPriority());
-            oldTask.setInitiatorId(newTask.getInitiatorId());
-        }
-        return of(taskMapper.toTaskDto(oldTask));
+
+        throw new AuthorizationException(String.format("Ошибка авторизации при обновлении задачи с id %s", taskId),
+                username);
+
     }
 
     @Override
     public void deleteTask(String username, Long taskId) {
         if (!isInitiator(taskId, username)) {
-            throw new AuthorizationException("Попытка удаления задачи не инициатором с именем ", username);
+            throw new AuthorizationException("Ошибка авторизации при удалении задачи пользователем ", username);
         }
         taskRepository.delete(getDomainTaskById(taskId));
     }
@@ -98,22 +86,36 @@ public class TaskServiceImpl implements TaskService {
                 .map(this::getDomainTaskById)
                 .collect(Collectors.toList());
 
-        if (tasks == null || tasks.isEmpty()) {
+        if (tasks.isEmpty()) {
             return Collections.emptyList();
         }
         return taskMapper.toTaskDto(tasks);
     }
 
-    @Override
-    public Optional<TaskDto> updateTaskByExecutor(Long taskId, String username, TaskDto task) {
+    public Optional<TaskDto> updateTaskByInitiator(Long taskId, TaskDto newTask, Collection<Long> ids) {
 
-        if (isInitiator(taskId, username)) {
-            return updateTask(taskId, username, task, Collections.emptyList());
+        Task oldTask = getDomainTaskById(taskId);
+        if (ids != null && !ids.isEmpty()) {
+            Set<User> users = ids.stream()
+                    .map(i -> userService.getDomainUserById(i).get())
+                    .collect(Collectors.toSet());
+            oldTask.setExecutors(new HashSet<>(users));
         }
+        if (!taskMapper.toTaskDto(oldTask).equals(newTask)) {
+            oldTask.setTitle(newTask.getTitle());
+            oldTask.setExecutors(newTask.getExecutors()
+                    .stream()
+                    .map(u -> userService.getDomainUserByName(u.getName()).get())
+                    .collect(Collectors.toSet()));
+            oldTask.setState(newTask.getState());
+            oldTask.setDescription(newTask.getDescription());
+            oldTask.setPriority(newTask.getPriority());
+            oldTask.setInitiatorId(newTask.getInitiatorId());
+        }
+        return of(taskMapper.toTaskDto(oldTask));
+    }
 
-        if (!getDomainTaskById(taskId).getExecutors().contains(userService.getDomainUserByName(username).get())) {
-            throw new AuthorizationException(String.format("Ошибка при обновлении задачи с id %s", taskId), username);
-        }
+    public Optional<TaskDto> updateTaskByExecutor(Long taskId, TaskDto task) {
 
         Task oldTask = getDomainTaskById(taskId);
         oldTask.setState(task.getState());
@@ -122,14 +124,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private Task getDomainTaskById(Long taskId)  {
-        return taskRepository.findById(taskId).orElseThrow(() -> {
-            throw new TaskNotFoundException("Ошибка при запросе события", taskId);
-        });
+        return taskRepository.findById(taskId).orElseThrow(() ->
+                new TaskNotFoundException("Ошибка при запросе события", taskId));
     }
 
     private boolean isInitiator(Long taskId, String username) {
         return getDomainTaskById(taskId).getInitiatorId()
                 .equals(userService.getDomainUserByName(username).get().getId());
+
+    }
+
+    private boolean isExecutor(Long taskId, String username) {
+        return getDomainTaskById(taskId).getExecutors()
+                .contains(userService.getDomainUserByName(username).get());
 
     }
 

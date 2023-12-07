@@ -2,7 +2,6 @@ package dev.bolohonov.tms.api.controllers;
 
 import dev.bolohonov.tms.server.dto.TaskDto;
 import dev.bolohonov.tms.server.errors.mapper.MapperException;
-import dev.bolohonov.tms.server.errors.task.TaskNotFoundException;
 import dev.bolohonov.tms.server.errors.user.UserRoleUndefinedException;
 import dev.bolohonov.tms.server.services.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +9,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
@@ -113,7 +111,7 @@ public class TaskController {
         taskService.deleteTask(principal.getName(), taskId);
     }
 
-    @GetMapping("/role/{userId}")
+    @GetMapping("/search/{userId}")
     @ResponseStatus(OK)
     @Operation(
             summary = "Поиск списка задач исполнителей или инициаторов",
@@ -141,20 +139,5 @@ public class TaskController {
             return taskService.getTasksByInitiator(userId, from, size);
         }
         throw new UserRoleUndefinedException("Невозможно определить статус пользователя", role);
-    }
-
-    @PatchMapping("/role/{taskId}")
-    @ResponseStatus(OK)
-    @Operation(
-            summary = "Обновление задачи исполнителем",
-            description = "Исполнителю доступно только обновление статуса задачи, который приходит " +
-                    "в составе объекта в теле запроса"
-    )
-    @SecurityRequirement(name = "JWT")
-    public ResponseEntity patchTaskByExecutor(@Parameter(description = "Идентификатор задачи")
-                                                  @PathVariable Long taskId,
-                                              @RequestBody TaskDto taskDto,
-                                              Principal principal) {
-        return ResponseEntity.ok().body(taskService.updateTaskByExecutor(taskId, principal.getName(), taskDto));
     }
 }

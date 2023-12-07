@@ -1,19 +1,20 @@
 version: '3.8'
 services:
-  TaskManagementSystem:
-    build: TaskManagementSystem
-    container_name: TaskManagementSystem_container
+  tms:
+    build: .
+    container_name: tms_container
     ports:
       - "8080:8080"
     depends_on:
       - postgresql
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/root
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - JWT_SECRET=aJFPB4rb1xfvLW13XfBbjNs5gagHnxoUzkGjs6kPaR0enXufK2QQpUh+4vkMBuAYKpsTdPfvQrzsykbt5nAL2Q==
 
   postgresql:
-    image: postgres:13.7-alpine
+    image: postgres:16.1-alpine
     restart: always
     container_name: postgresql_container
     ports:
@@ -21,5 +22,5 @@ services:
     volumes:
       - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres

@@ -42,9 +42,4 @@ public interface TaskService {
      * Получить список событий по id исполнителя
      */
     Collection<TaskDto> getTasksByExecutor(Long userId, Integer from, Integer size);
-
-    /**
-     * Инициатор обновляет задачу
-     */
-    Optional<TaskDto> updateTaskByExecutor(Long taskId, String username, TaskDto task);
 }

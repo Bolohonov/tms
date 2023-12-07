@@ -1,3 +1,3 @@
-FROM liberica-openjdk-debian:17.0.9-11
-COPY target/*.jar TaskManagementSystem.jar
-ENTRYPOINT ["java","-jar","TaskManagementSystem.jar"]
+FROM bellsoft/liberica-openjdk-alpine:17
+COPY target/*.jar tms.jar
+ENTRYPOINT ["java","-jar","tms.jar"]
