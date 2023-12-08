@@ -17,6 +17,7 @@ import javax.validation.constraints.Positive;
 import java.security.Principal;
 import java.util.Collection;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -69,7 +70,7 @@ public class TaskController {
     }
 
     @PostMapping()
-    @ResponseStatus(OK)
+    @ResponseStatus(CREATED)
     @Operation(
             summary = "Добавление задачи",
             description = "Добавление задачи"
