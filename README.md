@@ -1,8 +1,8 @@
 # TaskManagementSystem
 
-Микросервис на SpringBoot с БД - PostgreSQL, Swagger подключен как зависимость, добавлены аннотации с описанием.  
+Сервис на SpringBoot с БД - PostgreSQL, Swagger подключен как зависимость, добавлены аннотации с описанием.  
 Спецификация API сервиса: openapi.yaml  
-Коллекция Postman для тестирования приложения: TMS Test.postman_collection.json
+Коллекция Postman для тестирования: TMS Test.postman_collection.json
 
 Для запуска сервиса необходимо выполнить в терминале из корневой папки проекта:  
 mvn clean package
