@@ -5,8 +5,6 @@ import dev.bolohonov.tms.server.mappers.CommentMapper;
 import dev.bolohonov.tms.server.model.Comment;
 import dev.bolohonov.tms.server.repo.comment.CommentRepository;
 import dev.bolohonov.tms.server.services.CommentService;
-import dev.bolohonov.tms.server.services.TaskService;
-import dev.bolohonov.tms.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
