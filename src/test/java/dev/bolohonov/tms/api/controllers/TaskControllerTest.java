@@ -22,11 +22,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.HashSet;
+import java.util.LinkedList;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 import static java.util.Optional.of;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +52,8 @@ class TaskControllerTest {
 
     private TaskDto taskDto;
 
+    private LinkedList<TaskDto> tasks = new LinkedList<>();
+
     @BeforeEach
     void setUp() {
         mvc = MockMvcBuilders
@@ -65,14 +71,58 @@ class TaskControllerTest {
                 .priority(TaskPriority.LOW)
                 .state(TaskState.PENDING)
                 .build();
+
+        TaskDto t;
+
+        for (int i = 0; i < 10; i++) {
+            t = TaskDto.builder()
+                    .title("title")
+                    .description("description")
+                    .initiatorId(1L)
+                    .executors(new HashSet<>())
+                    .priority(TaskPriority.LOW)
+                    .state(TaskState.PENDING)
+                    .build();
+            tasks.add(t);
+        }
+
     }
 
     @Test
+    @SneakyThrows
     void findTasks() {
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .get("/api/tasks/all")
+                .principal(mockPrincipal);
+
+        when(taskService.getTasks(anyInt(), anyInt()))
+                .thenReturn(tasks);
+
+        mvc.perform(requestBuilder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(10)))
+        ;
     }
 
     @Test
+    @SneakyThrows
     void findTaskById() {
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .get("/api/tasks/1")
+                .principal(mockPrincipal);
+
+        when(taskService.getTaskById(anyLong()))
+                .thenReturn(of(taskDto));
+
+        mvc.perform(requestBuilder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title", is(taskDto.getTitle())))
+                .andExpect(jsonPath("$.description", is(taskDto.getDescription())))
+                .andExpect(jsonPath("$.state", is(taskDto.getState().toString())))
+                .andExpect(jsonPath("$.priority", is(taskDto.getPriority().toString())))
+                .andExpect(jsonPath("$.executors", hasSize(0)))
+                .andExpect(jsonPath("$.initiatorId", is(taskDto.getInitiatorId()), Long.class));
     }
 
     @Test
@@ -91,7 +141,13 @@ class TaskControllerTest {
                 .thenReturn(of(taskDto));
 
         mvc.perform(requestBuilder)
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title", is(taskDto.getTitle())))
+                .andExpect(jsonPath("$.description", is(taskDto.getDescription())))
+                .andExpect(jsonPath("$.state", is(taskDto.getState().toString())))
+                .andExpect(jsonPath("$.priority", is(taskDto.getPriority().toString())))
+                .andExpect(jsonPath("$.executors", hasSize(0)))
+                .andExpect(jsonPath("$.initiatorId", is(taskDto.getInitiatorId()), Long.class));
     }
 
     @Test
