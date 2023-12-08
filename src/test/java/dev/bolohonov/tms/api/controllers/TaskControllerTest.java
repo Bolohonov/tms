@@ -150,12 +150,33 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.initiatorId", is(taskDto.getInitiatorId()), Long.class));
     }
 
-    @Test
-    @SneakyThrows
-    void patchTask() {
-
-
-    }
+//    @Test
+//    @SneakyThrows
+//    void patchTask() {
+//        System.out.println((Arrays.asList(1L, 2L)));
+//
+//        RequestBuilder requestBuilder = MockMvcRequestBuilders
+//                .patch("/api/tasks/1")
+//                .queryParam("users", "1L", "2L")
+//                .principal(mockPrincipal)
+//                .content(mapper.writeValueAsString(taskDto))
+//                .characterEncoding(StandardCharsets.UTF_8)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .accept(MediaType.APPLICATION_JSON);
+//
+//        when(taskService.updateTask(anyLong(), anyString(), any(), anyCollection()))
+//                .thenReturn(of(taskDto));
+//
+//        mvc.perform(requestBuilder)
+//                .andExpect(status().isOk());
+////                .andExpect(jsonPath("$.title", is(taskDto.getTitle())))
+////                .andExpect(jsonPath("$.description", is(taskDto.getDescription())))
+////                .andExpect(jsonPath("$.state", is(taskDto.getState().toString())))
+////                .andExpect(jsonPath("$.priority", is(taskDto.getPriority().toString())))
+////                .andExpect(jsonPath("$.executors", hasSize(0)))
+////                .andExpect(jsonPath("$.initiatorId", is(taskDto.getInitiatorId()), Long.class));
+//
+//    }
 
     @Test
     @SneakyThrows

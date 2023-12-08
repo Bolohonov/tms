@@ -105,7 +105,7 @@ public class TaskServiceImpl implements TaskService {
             oldTask.setTitle(newTask.getTitle());
             oldTask.setExecutors(newTask.getExecutors()
                     .stream()
-                    .map(u -> userService.getDomainUserByName(u.getName()).get())
+                    .map(u -> userService.getDomainUserById(u).get())
                     .collect(Collectors.toSet()));
             oldTask.setState(newTask.getState());
             oldTask.setDescription(newTask.getDescription());

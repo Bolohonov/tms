@@ -2,6 +2,7 @@ package dev.bolohonov.tms.server.mappers;
 
 import dev.bolohonov.tms.server.dto.TaskDto;
 import dev.bolohonov.tms.server.model.Task;
+import dev.bolohonov.tms.server.model.User;
 import dev.bolohonov.tms.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,9 +23,9 @@ public class TaskMapper {
                 task.getTitle(),
                 task.getDescription(),
                 task.getInitiatorId(),
-                new HashSet<>(UserMapper.toUserDto(task.getExecutors() != null
-                        ? task.getExecutors()
-                        : Collections.emptySet())),
+                new HashSet<>(task.getExecutors() != null
+                        ? task.getExecutors().stream().map(User::getId).collect(Collectors.toSet())
+                        : Collections.emptySet()),
                 task.getState(),
                 task.getPriority()
         );
@@ -42,8 +43,7 @@ public class TaskMapper {
                 dto.getTitle(),
                 dto.getDescription(),
                 dto.getInitiatorId(),
-                dto.getExecutors().stream().map(u -> userService.getDomainUserByName(u.getName())
-                        .get())
+                dto.getExecutors().stream().map(u -> userService.getDomainUserById(u).get())
                         .collect(Collectors.toSet()),
                 dto.getState(),
                 dto.getPriority()

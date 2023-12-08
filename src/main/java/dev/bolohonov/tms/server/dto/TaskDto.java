@@ -36,7 +36,7 @@ public class TaskDto {
      * Исполнители задачи
      */
     @Schema(description = "Коллекция исполнителей задачи (без дубликатов пользователей)")
-    private Set<UserDto> executors;
+    private Set<Long> executors;
     /**
      * Список состояний жизненного цикла задачи
      */

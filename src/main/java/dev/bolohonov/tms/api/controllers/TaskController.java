@@ -94,7 +94,8 @@ public class TaskController {
                              @RequestBody TaskDto taskDto,
                              @Parameter(description = "Список идентификаторов пользователей для обновления " +
                                      "списка исполнителей задачи")
-                                 @RequestParam(name = "users", required = false) Collection<Long> users, Principal principal) {
+                                 @RequestParam(name = "users", required = false) Collection<Long> users,
+                             Principal principal) {
         return taskService.updateTask(taskId, principal.getName(), taskDto, users).orElseThrow(
                         () -> new MapperException("Ошибка при обновлении задачи", taskId)
         );
