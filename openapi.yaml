@@ -1,32 +1,39 @@
 openapi: "3.0.3"
 info:
-  title: "TaskManagementSystem API"
-  description: "TaskManagementSystem API"
+  title: "tms API"
+  description: "tms API"
   version: "1.0.0"
 servers:
-  - url: "localhost:8080"
+  - url: "https://tms"
 tags:
-  - name: "Контроллер авторизации"
-    description: "Контроллер для авторизации пользователей. Неавторизованный пользов\
-    атель не имеет доступа ни к одному из эндпоинтов"
-  - name: "Контроллер для работы с задачами"
-    description: "Контроллер для CRUD операций с задачами и получения списков задач\
-    \ по критериям"
   - name: "Контроллер для работы с комментариями"
     description: "Контроллер для добавления комментариев и получения списка коммента\
     риев задачи"
+  - name: "Контроллер для работы с задачами"
+    description: "Контроллер для CRUD операций с задачами и получения списков задач\
+    \ по критериям"
+  - name: "Контроллер авторизации"
+    description: "Контроллер для авторизации пользователей. Неавторизованный пользов\
+    атель не имеет доступа ни к одному из эндпоинтов"
 paths:
-  /api/auth/signin:
+  /api/tasks/{taskId}/comments/add:
     post:
-      summary: "Авторизация пользователя"
-      description: "Пользователь передает заранее зарегистрированные имя и пароль\
-        \ и получает токен"
+      summary: "Добавление комментария"
+      description: "Добавление комментария к задаче по идентификатору"
       operationId: ""
+      parameters:
+        - name: "taskId"
+          in: "path"
+          required: true
+          description: "Идентификатор задачи"
+          schema:
+            type: "integer"
+            format: "int64"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LoginDto"
+              $ref: "#/components/schemas/CommentDto"
         required: true
       responses:
         "200":
@@ -34,20 +41,43 @@ paths:
           content:
             '*/*':
               schema:
-                type: "object"
-  /api/auth/signout:
-    post:
-      summary: "Выход из системы"
-      description: "Токен становится недействительным и потребуется повторная авто\
-        ризация с получением нового токена. Открытая сессия также закрывается."
+                $ref: "#/components/schemas/ResponseEntity"
+  /api/tasks/{taskId}/comments:
+    get:
+      summary: "Поиск комментариев"
+      description: "Поиск всех комментариев к задаче по идентификатору"
       operationId: ""
+      parameters:
+        - name: "taskId"
+          in: "path"
+          required: true
+          description: "Идентификатор задачи"
+          schema:
+            type: "integer"
+            format: "int64"
+        - name: "from"
+          in: "query"
+          required: false
+          description: "Номер начальной страницы"
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "0"
+        - name: "size"
+          in: "query"
+          required: false
+          description: "Количество элементов на странице"
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "50"
       responses:
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                type: "object"
+                $ref: "#/components/schemas/ResponseEntity"
   /api/tasks/{taskId}:
     patch:
       summary: "Обновление задачи"
@@ -63,16 +93,6 @@ paths:
           schema:
             type: "integer"
             format: "int64"
-        - name: "users"
-          in: "query"
-          required: false
-          description: "Список идентификаторов пользователей для обновления списка и\
-          сполнителей задачи"
-          schema:
-            type: "array"
-            items:
-              type: "integer"
-              format: "int64"
       requestBody:
         content:
           application/json:
@@ -132,8 +152,8 @@ paths:
               $ref: "#/components/schemas/TaskDto"
         required: true
       responses:
-        "200":
-          description: "OK"
+        "201":
+          description: "Created"
           content:
             '*/*':
               schema:
@@ -216,24 +236,17 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/TaskDto"
-  /api/tasks/{taskId}/comments/add:
+  /api/auth/signin:
     post:
-      summary: "Добавление комментария"
-      description: "Добавление комментария к задаче по идентификатору"
+      summary: "Авторизация пользователя"
+      description: "Пользователь передает заранее зарегистрированные имя и пароль\
+        \ и получает токен"
       operationId: ""
-      parameters:
-        - name: "taskId"
-          in: "path"
-          required: true
-          description: "Идентификатор задачи"
-          schema:
-            type: "integer"
-            format: "int64"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CommentDto"
+              $ref: "#/components/schemas/LoginDto"
         required: true
       responses:
         "200":
@@ -241,83 +254,22 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/ResponseEntity"
-  /api/tasks/{taskId}/comments:
-    get:
-      summary: "Поиск комментариев"
-      description: "Поиск всех комментариев к задаче по идентификатору"
+                type: "object"
+  /api/auth/signout:
+    post:
+      summary: "Выход из системы"
+      description: "Токен становится недействительным и потребуется повторная авто\
+        ризация с получением нового токена. Открытая сессия также закрывается."
       operationId: ""
-      parameters:
-        - name: "taskId"
-          in: "path"
-          required: true
-          description: "Идентификатор задачи"
-          schema:
-            type: "integer"
-            format: "int64"
-        - name: "from"
-          in: "query"
-          required: false
-          description: "Номер начальной страницы"
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "0"
-        - name: "size"
-          in: "query"
-          required: false
-          description: "Количество элементов на странице"
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "50"
       responses:
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/ResponseEntity"
+                type: "object"
 components:
   schemas:
-    LoginDto:
-      type: "object"
-      properties:
-        username:
-          type: "string"
-        password:
-          type: "string"
-    UserDto:
-      type: "object"
-      properties:
-        name:
-          type: "string"
-    TaskDto:
-      type: "object"
-      properties:
-        title:
-          type: "string"
-        description:
-          type: "string"
-        initiatorId:
-          type: "integer"
-          format: "int64"
-        executors:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/UserDto"
-        state:
-          type: "string"
-          enum:
-            - "PENDING"
-            - "PROGRESS"
-            - "COMPLETED"
-        priority:
-          type: "string"
-          enum:
-            - "LOW"
-            - "MEDIUM"
-            - "HIGH"
     CommentDto:
       type: "object"
       properties:
@@ -337,3 +289,37 @@ components:
       properties:
         headers:
           $ref: "#/components/schemas/HttpHeaders"
+    TaskDto:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        description:
+          type: "string"
+        initiatorId:
+          type: "integer"
+          format: "int64"
+        executors:
+          type: "array"
+          items:
+            type: "integer"
+            format: "int64"
+        state:
+          type: "string"
+          enum:
+            - "PENDING"
+            - "PROGRESS"
+            - "COMPLETED"
+        priority:
+          type: "string"
+          enum:
+            - "LOW"
+            - "MEDIUM"
+            - "HIGH"
+    LoginDto:
+      type: "object"
+      properties:
+        username:
+          type: "string"
+        password:
+          type: "string"

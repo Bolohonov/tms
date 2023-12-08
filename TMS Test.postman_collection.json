@@ -1,0 +1,1111 @@
+{
+	"info": {
+		"_postman_id": "78e3b388-14e0-47f1-9c1c-b9d0abe0762f",
+		"name": "TMS Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20466073"
+	},
+	"item": [
+		{
+			"name": "BaseFunctions",
+			"item": [
+				{
+					"name": "SignInSecondUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response has the required fields\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"\r",
+									"  pm.expect(responseData).to.be.an('object');\r",
+									"  pm.expect(responseData.token).to.exist;\r",
+									"  pm.expect(responseData.username).to.exist;\r",
+									"  pm.expect(responseData.roles).to.exist;\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Token is a non-empty string\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData.token).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Token should not be empty\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Username is not empty\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  pm.expect(responseData).to.be.an('object');\r",
+									"  pm.expect(responseData.username).to.exist.and.to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Roles is an array\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  pm.expect(responseData.roles).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkB0bXMucnUiLCJpYXQiOjE3MDE5NjMzNDUsImV4cCI6MTcwMTk2NDU0NX0._HOJXvLmBXCT8TuStXUMuJHM1N4y1znJ_ETGOaIfVhZgTaZroPSkju9BoWSQfGpt11XPLO98pyZZ9jhVlrRSTw",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"user@tms.ru\",\r\n    \"password\": \"user\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/signin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"signin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SignIn Auth Error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      id: { type: \"string\" },\r",
+									"      errors: { type: \"string\" },\r",
+									"      message: { type: \"string\" },\r",
+									"      reason: { type: \"string\" },\r",
+									"      status: { type: \"string\" },\r",
+									"      timestamp: { type: \"string\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"errors\", \"message\", \"reason\", \"status\", \"timestamp\"],\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});\r",
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"  pm.expect(pm.response.code).to.equal(403);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"All required fields are present in the response\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('object');\r",
+									"    pm.expect(responseData.id).to.exist;\r",
+									"    pm.expect(responseData.errors).to.exist;\r",
+									"    pm.expect(responseData.message).to.exist;\r",
+									"    pm.expect(responseData.reason).to.exist;\r",
+									"    pm.expect(responseData.status).to.exist;\r",
+									"    pm.expect(responseData.timestamp).to.exist;\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Id is a non-empty string\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  \r",
+									"  pm.expect(responseData).to.be.an('object');\r",
+									"  pm.expect(responseData.id).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Id should be a non-empty string\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkB0bXMucnUiLCJpYXQiOjE3MDE5NjMzNDUsImV4cCI6MTcwMTk2NDU0NX0._HOJXvLmBXCT8TuStXUMuJHM1N4y1znJ_ETGOaIfVhZgTaZroPSkju9BoWSQfGpt11XPLO98pyZZ9jhVlrRSTw",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"user@tms.ru\",\r\n    \"password\": \"error\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/signin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"signin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddTask",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for response content type\r",
+									"pm.test(\"Response has content type of application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      title: { type: \"string\" },\r",
+									"      description: { type: \"string\" },\r",
+									"      initiatorId: { type: \"number\" },\r",
+									"      executors: { type: \"array\" },\r",
+									"      state: { type: \"string\" },\r",
+									"      priority: { type: \"string\" }\r",
+									"    },\r",
+									"    required: [\"title\", \"description\", \"initiatorId\", \"executors\", \"state\", \"priority\"],\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"title\",\r\n    \"description\": \"description\",\r\n    \"executors\": [],\r\n    \"initiatorId\": 1,\r\n    \"priority\": \"LOW\",\r\n    \"state\": \"PENDING\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddTask2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"title2\",\r\n    \"description\": \"description2\",\r\n    \"executors\": [],\r\n    \"initiatorId\": 1,\r\n    \"priority\": \"HIGH\",\r\n    \"state\": \"PENDING\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddTask3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"title3\",\r\n    \"description\": \"description3\",\r\n    \"executors\": [],\r\n    \"initiatorId\": 1,\r\n    \"priority\": \"HIGH\",\r\n    \"state\": \"PENDING\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddTask4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      title: { type: \"string\" },\r",
+									"      description: { type: \"string\" },\r",
+									"      initiatorId: { type: \"number\" },\r",
+									"      executors: { type: \"array\" },\r",
+									"      state: { type: \"string\" },\r",
+									"      priority: { type: \"string\" },\r",
+									"    },\r",
+									"    required: [\"title\", \"description\", \"initiatorId\", \"executors\", \"state\", \"priority\"],\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"title4\",\r\n    \"description\": \"description4\",\r\n    \"executors\": [2, 3],\r\n    \"initiatorId\": 1,\r\n    \"priority\": \"HIGH\",\r\n    \"state\": \"PENDING\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddTask5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"title5\",\r\n    \"description\": \"description5\",\r\n    \"executors\": [1, 3],\r\n    \"initiatorId\": 1,\r\n    \"priority\": \"HIGH\",\r\n    \"state\": \"PENDING\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddTask6",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      title: { type: \"string\" },\r",
+									"      description: { type: \"string\" },\r",
+									"      initiatorId: { type: \"number\" },\r",
+									"      executors: { type: \"array\" },\r",
+									"      state: { type: \"string\" },\r",
+									"      priority: { type: \"string\" }\r",
+									"    },\r",
+									"    required: [\"title\", \"description\", \"initiatorId\", \"executors\", \"state\", \"priority\"],\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"title6\",\r\n    \"description\": \"description6\",\r\n    \"executors\": [3],\r\n    \"initiatorId\": 1,\r\n    \"priority\": \"HIGH\",\r\n    \"state\": \"PENDING\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PatchTask",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      title: { type: \"string\" },\r",
+									"      description: { type: \"string\" },\r",
+									"      initiatorId: { type: \"number\" },\r",
+									"      executors: { type: \"array\" },\r",
+									"      state: { type: \"string\" },\r",
+									"      priority: { type: \"string\" }\r",
+									"    },\r",
+									"    required: [\"title\", \"description\", \"initiatorId\", \"executors\", \"state\", \"priority\"],\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"new\",\r\n    \"description\": \"new\",\r\n    \"executors\": [2, 3],\r\n    \"initiatorId\": 2,\r\n    \"priority\": \"MEDIUM\",\r\n    \"state\": \"PROGRESS\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTaskById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      title: { type: \"string\" },\r",
+									"      description: { type: \"string\" },\r",
+									"      initiatorId: { type: \"number\" },\r",
+									"      executors: { type: \"array\" },\r",
+									"      state: { type: \"string\" },\r",
+									"      priority: { type: \"string\" }\r",
+									"    },\r",
+									"    required: [\"title\", \"description\", \"initiatorId\", \"executors\", \"state\", \"priority\"],\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTask2ById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      title: { type: \"string\" },\r",
+									"      description: { type: \"string\" },\r",
+									"      initiatorId: { type: \"number\" },\r",
+									"      executors: { type: \"array\" },\r",
+									"      state: { type: \"string\" },\r",
+									"      priority: { type: \"string\" }\r",
+									"    },\r",
+									"    required: [\"title\", \"description\", \"initiatorId\", \"executors\", \"state\", \"priority\"],\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllTasks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"array\",\r",
+									"    items: {\r",
+									"      type: \"object\",\r",
+									"      properties: {\r",
+									"        title: { type: \"string\" },\r",
+									"        description: { type: \"string\" },\r",
+									"        initiatorId: { type: \"number\" },\r",
+									"        executors: { type: \"array\" },\r",
+									"        state: { type: \"string\" },\r",
+									"        priority: { type: \"string\" }\r",
+									"      },\r",
+									"      required: [\"title\", \"description\", \"initiatorId\", \"executors\", \"state\", \"priority\"]\r",
+									"    }\r",
+									"  };\r",
+									"\r",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;\r",
+									"});// Verify the length of the response data\r",
+									"pm.test(\"The response data length must be greater than zero\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"   \r",
+									"    pm.expect(responseData.length).to.be.greaterThan(0, \"Response data should not be empty\");\r",
+									"\r",
+									"    responseData.forEach((task)=>{\r",
+									"      pm.expect(task.title).to.be.a('string', \"Task title should be a string\");\r",
+									"      pm.expect(task.description).to.be.a('string', \"Task description should be a string\");\r",
+									"      pm.expect(task.initiatorId).to.be.a('number', \"Initiator ID should be a number\");\r",
+									"      pm.expect(task.executors).to.be.an('array', \"Executors should be an array\");\r",
+									"      pm.expect(task.state).to.be.a('string', \"Task state should be a string\");\r",
+									"      pm.expect(task.priority).to.be.a('string', \"Task priority should be a string\");\r",
+									"    });\r",
+									"});// Verify the length of the response data and check for specific properties\r",
+									"pm.test(\"Validate response data and properties\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"   \r",
+									"    pm.expect(responseData.length).to.be.greaterThan(0, \"Response data should not be empty\");\r",
+									"    pm.expect(responseData.length).to.eq(6);\r",
+									"\r",
+									"    responseData.forEach((task)=>{\r",
+									"      pm.expect(task).to.have.property('title').that.is.a('string', \"Task title should be a string\");\r",
+									"      pm.expect(task).to.have.property('description').that.is.a('string', \"Task description should be a string\");\r",
+									"      pm.expect(task).to.have.property('initiatorId').that.is.a('number', \"Initiator ID should be a number\");\r",
+									"      pm.expect(task).to.have.property('executors').that.is.an('array', \"Executors should be an array\");\r",
+									"      pm.expect(task).to.have.property('state').that.is.a('string', \"Task state should be a string\");\r",
+									"      pm.expect(task).to.have.property('priority').that.is.a('string', \"Task priority should be a string\");\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllTasksByInitiator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"array\",\r",
+									"    items: {\r",
+									"      type: \"object\",\r",
+									"      properties: {\r",
+									"        title: { type: \"string\" },\r",
+									"        description: { type: \"string\" },\r",
+									"        initiatorId: { type: \"number\" },\r",
+									"        executors: { type: \"array\" },\r",
+									"        state: { type: \"string\" },\r",
+									"        priority: { type: \"string\" }\r",
+									"      },\r",
+									"      required: [\"title\", \"description\", \"initiatorId\", \"executors\", \"state\", \"priority\"]\r",
+									"    }\r",
+									"  };\r",
+									"\r",
+									"  pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;\r",
+									"});// Verify the length of the response data\r",
+									"pm.test(\"The response data length must be greater than zero\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData.length).to.be.greaterThan(0, \"Response data should not be empty\");\r",
+									"    pm.expect(responseData.length).to.eql(5);\r",
+									"\r",
+									"    responseData.forEach((task) => {\r",
+									"        pm.expect(task.title).to.be.a('string', \"Task title should be a string\");\r",
+									"        pm.expect(task.description).to.be.a('string', \"Task description should be a string\");\r",
+									"        pm.expect(task.initiatorId).to.be.a('number', \"Initiator ID should be a number\");\r",
+									"        pm.expect(task.executors).to.be.an('array', \"Executors should be an array\");\r",
+									"        pm.expect(task.state).to.be.a('string', \"Task state should be a string\");\r",
+									"        pm.expect(task.priority).to.be.a('string', \"Task priority should be a string\");\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/search/1?role=INITIATOR",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"search",
+								"1"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "INITIATOR"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllTasksByExecutor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response content type is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Title and Description are non-empty strings\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('array');\r",
+									"    \r",
+									"    responseData.forEach(function(task) {\r",
+									"        pm.expect(task.title).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Title should not be empty\");\r",
+									"        pm.expect(task.description).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Description should not be empty\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"// Test for response schema\r",
+									"pm.test(\"Response has valid schema\", function () {\r",
+									"    var schema = {\r",
+									"        type: \"array\",\r",
+									"        items: {\r",
+									"            type: \"object\",\r",
+									"            properties: {\r",
+									"                title: { type: \"string\", minLength: 1 },\r",
+									"                description: { type: \"string\", minLength: 1 },\r",
+									"                initiatorId: { type: \"number\" },\r",
+									"                executors: { type: \"array\" },\r",
+									"                state: { type: \"string\" },\r",
+									"                priority: { type: \"string\" }\r",
+									"            },\r",
+									"            required: [\"title\", \"description\", \"initiatorId\", \"executors\", \"state\", \"priority\"]\r",
+									"        }\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;\r",
+									"});// Verify the length of the response data\r",
+									"pm.test(\"The response data length must be greater than zero\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"   \r",
+									"    pm.expect(responseData.length).to.be.greaterThan(0, \"Response data should not be empty\");\r",
+									"    pm.expect(responseData.length).to.be.eql(2);\r",
+									"\r",
+									"    responseData.forEach((task)=>{\r",
+									"      pm.expect(task.title).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Title should not be empty\");\r",
+									"      pm.expect(task.description).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Description should not be empty\");\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/search/2?role=EXECUTOR",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"search",
+								"2"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "EXECUTOR"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteTask",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteTask NotFound",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for response content type\r",
+									"pm.test(\"Response has content type application/json\", function () {\r",
+									"    pm.expect(pm.response).to.have.header('Content-Type', 'application/json');\r",
+									"});pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      id: { type: \"string\" },\r",
+									"      errors: { type: \"string\" },\r",
+									"      message: { type: \"string\" },\r",
+									"      reason: { type: \"string\" },\r",
+									"      status: { type: \"string\" },\r",
+									"      timestamp: { type: \"string\" },\r",
+									"    },\r",
+									"    required: [\"id\", \"errors\", \"message\", \"reason\", \"status\", \"timestamp\"],\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PatchTask NotAuthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      id: { type: \"string\" },\r",
+									"      errors: { type: \"string\" },\r",
+									"      message: { type: \"string\" },\r",
+									"      reason: { type: \"string\" },\r",
+									"      status: { type: \"string\" },\r",
+									"      timestamp: { type: \"string\" }\r",
+									"    },\r",
+									"    required: [\"id\", \"errors\", \"message\", \"reason\", \"status\", \"timestamp\"],\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});// Test for response content type\r",
+									"pm.test(\"Response has content type application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"pm.test(\"Response status code is 403\", function () {\r",
+									"  pm.expect(pm.response.code).to.equal(403);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"new\",\r\n    \"description\": \"new\",\r\n    \"executors\": [],\r\n    \"initiatorId\": 2,\r\n    \"priority\": \"MEDIUM\",\r\n    \"state\": \"PROGRESS\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"var request = {",
+					"        url: 'http://localhost:8080/api/auth/signin',",
+					"        method: 'POST',",
+					"        header: 'Content-Type:application/json',",
+					"        body: {",
+					"              mode: 'raw',",
+					"              raw: JSON.stringify({",
+					"    \"username\": \"admin@tms.ru\",",
+					"    \"password\": \"admin\"",
+					"})",
+					"              }",
+					"        ",
+					"    };",
+					"",
+					"    pm.sendRequest(request, function (err, res) {",
+					"            if (res !== null) {",
+					"                ",
+					"                var token = res.json().token;",
+					"                console.log(token)",
+					"                pm.environment.set('Access_Token', token)",
+					"",
+					"                ",
+					"            }",
+					"        });",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Access_Token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "baseUrl",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
