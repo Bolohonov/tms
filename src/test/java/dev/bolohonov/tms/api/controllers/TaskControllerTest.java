@@ -21,12 +21,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.*;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import static java.util.Optional.of;
@@ -151,14 +151,51 @@ class TaskControllerTest {
     }
 
     @Test
+    @SneakyThrows
     void patchTask() {
+
+
     }
 
     @Test
+    @SneakyThrows
     void removeTask() {
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .delete("/api/tasks/1")
+                .principal(mockPrincipal);
+
+
+        doNothing().when(taskService).deleteTask(anyString(), anyLong());
+
+        mvc.perform(requestBuilder)
+                .andExpect(status().isOk());
     }
 
     @Test
+    @SneakyThrows
     void findTasksByUser() {
+
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .get("/api/tasks/search/1?role=INITIATOR")
+                .principal(mockPrincipal);
+
+        when(taskService.getTasksByInitiator(anyLong(), anyInt(), anyInt()))
+                .thenReturn(tasks);
+
+        mvc.perform(requestBuilder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(10)));
+
+        requestBuilder = MockMvcRequestBuilders
+                .get("/api/tasks/search/1?role=EXECUTOR")
+                .principal(mockPrincipal);
+
+        when(taskService.getTasksByExecutor(anyLong(), anyInt(), anyInt()))
+                .thenReturn(tasks);
+
+        mvc.perform(requestBuilder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(10)));
     }
 }
