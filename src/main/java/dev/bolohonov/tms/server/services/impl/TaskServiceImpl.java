@@ -48,10 +48,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Optional<TaskDto> updateTask(Long taskId, String username, TaskDto newTask, Collection<Long> ids) {
+    public Optional<TaskDto> updateTask(Long taskId, String username, TaskDto newTask) {
 
         if (isInitiator(taskId, username)) {
-            return updateTaskByInitiator(taskId, newTask, ids);
+            return updateTaskByInitiator(taskId, newTask);
         }
 
         if(isExecutor(taskId, username)) {
@@ -92,15 +92,9 @@ public class TaskServiceImpl implements TaskService {
         return taskMapper.toTaskDto(tasks);
     }
 
-    public Optional<TaskDto> updateTaskByInitiator(Long taskId, TaskDto newTask, Collection<Long> ids) {
+    public Optional<TaskDto> updateTaskByInitiator(Long taskId, TaskDto newTask) {
 
         Task oldTask = getDomainTaskById(taskId);
-        if (ids != null && !ids.isEmpty()) {
-            Set<User> users = ids.stream()
-                    .map(i -> userService.getDomainUserById(i).get())
-                    .collect(Collectors.toSet());
-            oldTask.setExecutors(new HashSet<>(users));
-        }
         if (!taskMapper.toTaskDto(oldTask).equals(newTask)) {
             oldTask.setTitle(newTask.getTitle());
             oldTask.setExecutors(newTask.getExecutors()

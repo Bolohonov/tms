@@ -3,11 +3,13 @@ package dev.bolohonov.tms.server.dto;
 import dev.bolohonov.tms.server.model.enums.TaskPriority;
 import dev.bolohonov.tms.server.model.enums.TaskState;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Collection;
 import java.util.Set;
 
 @Data
@@ -20,6 +22,7 @@ public class TaskDto {
      * Заголовок задачи
      */
     @Schema(description = "Заголовок задачи")
+    @NotBlank
     private String title;
     /**
      * Полное описание задачи
@@ -36,7 +39,7 @@ public class TaskDto {
      * Исполнители задачи
      */
     @Schema(description = "Коллекция исполнителей задачи (без дубликатов пользователей)")
-    private Set<Long> executors;
+    private Collection<Long> executors;
     /**
      * Список состояний жизненного цикла задачи
      */

@@ -92,11 +92,8 @@ public class TaskController {
     @SecurityRequirement(name = "JWT")
     public TaskDto patchTask(@Parameter(description = "Идентификатор задачи") @PathVariable Long taskId,
                              @RequestBody TaskDto taskDto,
-                             @Parameter(description = "Список идентификаторов пользователей для обновления " +
-                                     "списка исполнителей задачи")
-                                 @RequestParam(name = "users", required = false) Collection<Long> users,
                              Principal principal) {
-        return taskService.updateTask(taskId, principal.getName(), taskDto, users).orElseThrow(
+        return taskService.updateTask(taskId, principal.getName(), taskDto).orElseThrow(
                         () -> new MapperException("Ошибка при обновлении задачи", taskId)
         );
     }

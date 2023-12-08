@@ -26,7 +26,7 @@ public interface TaskService {
     /**
      * Инициатор обновляет задачу и (или) назначает исполнителей
      */
-    Optional<TaskDto> updateTask(Long taskId, String username, TaskDto taskDto, Collection<Long> users);
+    Optional<TaskDto> updateTask(Long taskId, String username, TaskDto taskDto);
 
     /**
      * Удалить задачу
