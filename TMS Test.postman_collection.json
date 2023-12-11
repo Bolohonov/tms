@@ -1048,6 +1048,509 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Add Comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response content type is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+									"});pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"object\",\r",
+									"    properties: {\r",
+									"      authorId: {\r",
+									"        type: \"number\"\r",
+									"      },\r",
+									"      taskId: {\r",
+									"        type: \"number\"\r",
+									"      },\r",
+									"      text: {\r",
+									"        type: \"string\"\r",
+									"      }\r",
+									"    },\r",
+									"    required: [\"authorId\", \"taskId\", \"text\"],\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"authorId\": 1,\r\n    \"taskId\": 3,\r\n    \"text\": \"comment text\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks/3/comments/add",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"3",
+								"comments",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Comments Another Task",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var request = {\r",
+									"        url: pm.environment.get('baseUrl') + '/tasks/4/comments/add',\r",
+									"        method: 'POST',\r",
+									"        header: 'Content-Type:application/json',\r",
+									"        body: {\r",
+									"              mode: 'raw',\r",
+									"              raw: JSON.stringify({\r",
+									"    \"authorId\": 2,\r",
+									"    \"taskId\": 4,\r",
+									"    \"text\": \"comment text\"\r",
+									"})\r",
+									"              }\r",
+									"        \r",
+									"    };\r",
+									"\r",
+									"var retryDelay = 1000;\r",
+									"var retryLimit = 19;\r",
+									"\r",
+									"function isProcessingComplete(retryCount) {\r",
+									"    pm.sendRequest(request, function (err, response) {\r",
+									"        if(err) {\r",
+									"            console.log(err);\r",
+									"        } else {\r",
+									"            \r",
+									"            if(response.status === 'OK') {\r",
+									"                if (retryCount < retryLimit) {\r",
+									"                    isProcessingComplete(++retryCount);\r",
+									"                } else {\r",
+									"                    postman.setNextRequest(null);\r",
+									"                }\r",
+									"            }\r",
+									"        }\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"isProcessingComplete(1);\r",
+									"\r",
+									"\r",
+									"    "
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"authorId\": 2,\r\n    \"taskId\": 4,\r\n    \"text\": \"comment text\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/tasks/4/comments/add",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"4",
+								"comments",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Comments By task",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Verify the length of comments\r",
+									"pm.test(\"The comments length must be greater than zero\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"   \r",
+									"    pm.expect(responseData.length).to.be.greaterThan(0, \"Comments should not be empty\");\r",
+									"\r",
+									"    responseData.forEach((comment)=>{\r",
+									"      pm.expect(comment).to.have.property('authorId');\r",
+									"      pm.expect(comment).to.have.property('taskId');\r",
+									"      pm.expect(comment).to.have.property('text');\r",
+									"    });\r",
+									"});\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"  pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Content-Type header is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Each comment has non-negative authorId and taskId\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('array').that.is.not.empty;\r",
+									"    \r",
+									"    responseData.forEach(function(comment) {\r",
+									"        pm.expect(comment.authorId).to.be.at.least(0);\r",
+									"        pm.expect(comment.taskId).to.be.at.least(0);\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Each comment has a non-empty text\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('array');\r",
+									"    responseData.forEach(function(comment) {\r",
+									"        pm.expect(comment.text).to.exist.and.to.have.lengthOf.at.least(1, \"Text should not be empty\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Response is an array of objects\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  \r",
+									"  pm.expect(responseData).to.be.an('array');\r",
+									"  responseData.forEach(function(comment) {\r",
+									"    pm.expect(comment).to.be.an('object');\r",
+									"  });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"array\",\r",
+									"    items: {\r",
+									"      type: \"object\",\r",
+									"      properties: {\r",
+									"        authorId: { type: \"number\" },\r",
+									"        taskId: { type: \"number\" },\r",
+									"        text: { type: \"string\" }\r",
+									"      },\r",
+									"      required: [\"authorId\", \"taskId\", \"text\"]\r",
+									"    }\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/4/comments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"4",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pagination",
+			"item": [
+				{
+					"name": "GetAllTasksByInitiator Pagination",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Verify the length of the response data\r",
+									"pm.test(\"The response data length must be greater than zero\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"   \r",
+									"    pm.expect(responseData.length).to.be.greaterThan(0, \"Response data should not be empty\");\r",
+									"\r",
+									"    pm.expect(responseData.length).eql(1);\r",
+									"    responseData.forEach((task)=>{\r",
+									"      pm.expect(task.title).to.be.a('string');\r",
+									"      pm.expect(task.description).to.be.a('string');\r",
+									"      pm.expect(task.initiatorId).to.be.a('number');\r",
+									"      pm.expect(task.executors).to.be.an('array');\r",
+									"      pm.expect(task.state).to.be.a('string');\r",
+									"      pm.expect(task.priority).to.be.a('string');\r",
+									"    });\r",
+									"});// Verify the response schema\r",
+									"pm.test(\"Schema is valid\", function () {\r",
+									"  var schema = {\r",
+									"    type: \"array\",\r",
+									"    items: {\r",
+									"      type: \"object\",\r",
+									"      properties: {\r",
+									"        title: { type: \"string\" },\r",
+									"        description: { type: \"string\" },\r",
+									"        initiatorId: { type: \"number\" },\r",
+									"        executors: { type: \"array\" },\r",
+									"        state: { type: \"string\" },\r",
+									"        priority: { type: \"string\" }\r",
+									"      },\r",
+									"      required: [\"title\", \"description\", \"initiatorId\", \"executors\", \"state\", \"priority\"]\r",
+									"    }\r",
+									"  };\r",
+									"\r",
+									"  var response = pm.response.json();\r",
+									"  pm.expect(tv4.validate(response, schema)).to.be.true;\r",
+									"});\r",
+									"pm.test(\"Title and description must be non-empty strings\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  \r",
+									"  responseData.forEach(function(task) {\r",
+									"    pm.expect(task.title).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Title should not be empty\");\r",
+									"    pm.expect(task.description).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Description should not be empty\");\r",
+									"  });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Executors array must contain at least one element\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('array');\r",
+									"    responseData.forEach(function(task) {\r",
+									"        pm.expect(task.executors).to.be.an('array').that.is.not.empty;\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/search/1?role=INITIATOR&from=1&size=3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"search",
+								"1"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "INITIATOR"
+								},
+								{
+									"key": "from",
+									"value": "1"
+								},
+								{
+									"key": "size",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Comments With Pagination",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.test(\"Response status code is 200\", function () {\r",
+									"  pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Content-Type is application/json\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Validate the array of comments\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseData).to.be.an('array');\r",
+									"    responseData.forEach(function(comment) {\r",
+									"        pm.expect(comment).to.be.an('object');\r",
+									"        pm.expect(comment).to.have.property('authorId');\r",
+									"        pm.expect(comment).to.have.property('taskId');\r",
+									"        pm.expect(comment).to.have.property('text');\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Each comment has authorId, taskId, and text fields\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('array');\r",
+									"    responseData.forEach(comment => {\r",
+									"        pm.expect(comment).to.have.property('authorId');\r",
+									"        pm.expect(comment).to.have.property('taskId');\r",
+									"        pm.expect(comment).to.have.property('text');\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"From and size query parameters are correctly reflected in the response\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseData).to.be.an('array');\r",
+									"    \r",
+									"    responseData.forEach(function(comment) {\r",
+									"        pm.expect(comment).to.have.property('authorId');\r",
+									"        pm.expect(comment).to.have.property('taskId');\r",
+									"        pm.expect(comment).to.have.property('text');\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"// Verify the length of comments in the response\r",
+									"pm.test(\"The comments array length must be greater than zero\", function () {\r",
+									"    const responseData = pm.response.json();\r",
+									"   \r",
+									"    pm.expect(responseData.length).to.be.greaterThan(0, \"Comments array should not be empty\");\r",
+									"\r",
+									"    pm.expect(responseData.length).eql(3);\r",
+									"\r",
+									"    responseData.forEach((comment)=>{\r",
+									"      pm.expect(comment).to.have.property('authorId');\r",
+									"      pm.expect(comment).to.have.property('taskId');\r",
+									"      pm.expect(comment).to.have.property('text');\r",
+									"    });\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{Access_Token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/tasks/4/comments?from=3&size=3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks",
+								"4",
+								"comments"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "3"
+								},
+								{
+									"key": "size",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
