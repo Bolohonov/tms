@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto saveUser(@Valid User user) {
         if (userRepository.findByName(user.getName()).isEmpty()) {
             userRepository.save(user);
@@ -66,6 +67,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<User> getDomainUserByName(String userName) {
         return of(userRepository.findByName(userName).orElseThrow(
                 () -> new UserNotFoundException("Ошибка запроса по имени", userName)
@@ -73,6 +75,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<User> getDomainUserById(Long id) {
         return of(userRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException("Ошибка запроса по id", id)
@@ -85,7 +88,7 @@ public class UserServiceImpl implements UserService {
         return of(UserMapper.toUserDto(userRepository.findByName(name).orElseThrow(
                 () -> new UserNotFoundException("Ошибка запроса по имени", name)
         )));
-    };
+    }
 
     @Transactional
     @Override

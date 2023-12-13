@@ -5,7 +5,6 @@ import dev.bolohonov.tms.server.errors.security.AuthorizationException;
 import dev.bolohonov.tms.server.errors.task.TaskNotFoundException;
 import dev.bolohonov.tms.server.mappers.TaskMapper;
 import dev.bolohonov.tms.server.model.Task;
-import dev.bolohonov.tms.server.model.User;
 import dev.bolohonov.tms.server.repo.task.TaskRepository;
 import dev.bolohonov.tms.server.services.TaskService;
 import dev.bolohonov.tms.server.services.UserService;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,23 +31,27 @@ public class TaskServiceImpl implements TaskService {
     private final UserService userService;
 
     @Override
+    @Transactional(readOnly = true)
     public Collection<TaskDto> getTasks(Integer from, Integer size) {
         Page<Task> tasks = taskRepository.findAll(getPageRequest(from, size));
         return checkAndReturnCollection(tasks);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<TaskDto> getTaskById(Long taskId) {
         return of(taskMapper.toTaskDto(getDomainTaskById(taskId)));
     }
 
     @Override
+    @Transactional
     public Optional<TaskDto> addTask(String username, TaskDto task) {
         taskRepository.save(taskMapper.fromTaskDto(task));
         return of(task);
     }
 
     @Override
+    @Transactional
     public Optional<TaskDto> updateTask(Long taskId, String username, TaskDto newTask) {
 
         if (isInitiator(taskId, username)) {
@@ -64,6 +68,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public void deleteTask(String username, Long taskId) {
         if (!isInitiator(taskId, username)) {
             throw new AuthorizationException("Ошибка авторизации при удалении задачи пользователем ", username);
@@ -72,12 +77,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Collection<TaskDto> getTasksByInitiator(Long userId, Integer from, Integer size) {
         Page<Task> tasks = taskRepository.getTasksByInitiatorId(userId, getPageRequest(from, size));
         return checkAndReturnCollection(tasks);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Collection<TaskDto> getTasksByExecutor(Long userId, Integer from, Integer size) {
 
         Collection<Task> tasks = taskRepository

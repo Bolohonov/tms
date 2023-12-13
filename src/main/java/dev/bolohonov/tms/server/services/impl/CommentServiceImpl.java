@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +22,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public Collection<CommentDto> getCommentsByTask(Long taskId, Integer from, Integer size) {
         Page<Comment> comments = commentRepository.getCommentsByTaskId(taskId, getPageRequest(from, size));
         if (comments == null || comments.isEmpty()) {
@@ -30,6 +32,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public CommentDto addComment(String userName, Long taskId, CommentDto comment) {
         commentRepository.save(CommentMapper.fromCommentDto(comment));
         return comment;

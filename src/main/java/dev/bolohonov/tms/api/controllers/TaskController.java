@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
@@ -76,7 +77,7 @@ public class TaskController {
             description = "Добавление задачи"
     )
     @SecurityRequirement(name = "JWT")
-    public TaskDto postTask(@RequestBody TaskDto taskDto, Principal principal) {
+    public TaskDto postTask(@Validated @RequestBody TaskDto taskDto, Principal principal) {
         return taskService.addTask(principal.getName(), taskDto).orElseThrow(
                 () -> new MapperException("Ошибка при сохранении задачи", taskDto.getTitle())
         );
@@ -91,7 +92,7 @@ public class TaskController {
     )
     @SecurityRequirement(name = "JWT")
     public TaskDto patchTask(@Parameter(description = "Идентификатор задачи") @PathVariable Long taskId,
-                             @RequestBody TaskDto taskDto,
+                             @Validated @RequestBody TaskDto taskDto,
                              Principal principal) {
         return taskService.updateTask(taskId, principal.getName(), taskDto).orElseThrow(
                         () -> new MapperException("Ошибка при обновлении задачи", taskId)

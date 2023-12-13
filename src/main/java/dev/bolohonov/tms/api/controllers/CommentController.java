@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Positive;
@@ -42,7 +43,7 @@ public class CommentController {
     )
     @SecurityRequirement(name = "JWT")
     public ResponseEntity postComment(@Parameter(description = "Идентификатор задачи") @PathVariable Long taskId,
-                                      @RequestBody CommentDto commentDto,
+                                      @Validated @RequestBody CommentDto commentDto,
                                       Principal principal) {
         return ResponseEntity.ok().body(commentService.addComment(principal.getName(), taskId, commentDto));
     }

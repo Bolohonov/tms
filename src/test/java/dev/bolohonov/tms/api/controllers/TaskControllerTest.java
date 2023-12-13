@@ -127,7 +127,7 @@ class TaskControllerTest {
 
     @Test
     @SneakyThrows
-    void postTask() {
+    void postTaskSuccess() {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post("/api/tasks")
                 .principal(mockPrincipal)
